@@ -265,6 +265,7 @@ The python file, called ```main.py```, that's running the server connects to the
     ```
 
 This along with the landing page in html are available within the folder ```FlaskFiles``` of the base code. This folder is the second piece that will need to be sent over to the spider.
+<<<<<<< HEAD
 
 ### Sending the Files Over
 
@@ -348,6 +349,91 @@ Make it executable with ```chmod +x S60MAC.sh``` and the programs will run every
 
 ## Adding Wi-fi
 
+=======
+
+### Sending the Files Over
+
+In order to send the necessary files over to the board of the spider, we will make use of scp, which works similarly to ssh. However, this requires that the board and your computer are on the same subnet. This tutorial has already placed a fixed ip for the board, so all that is needed is to configure a static ip address for your computer.
+
+Connect one end of an ethernet cable to your board and the other end to a USB-Ethernet adapter, which will then plug into your computer. Open up your computer's network settings, head over to **Wired Connection** :arrow_right: **IPv4** and configure your ip and netmask:
+
+![](ip.png)
+
+!!! note
+    This ip address and netmask are on the same subnet as the board, which was configured earlier. If you chose a different address, you will need to adjust your computer's address on this step to match.
+
+Once the configuration is applied, you can test the connection by pinging the board from your computer. If you've managed to ping, you're good to move on. Otherwise, check your configurations both on the board through a serial connection and on the computer.
+
+Navigate over to where ```/.spider``` is located on your computer and run the following command:
+
+``` 
+scp spider root@10.10.10.100:/root/
+```
+
+Next, go to where your folder with the Flask files is and run scp again, but this time with the -r flag to send the whole folder along:
+
+```
+scp -r /FlaskFiles root@10.10.10.100:/root/
+```
+
+With both commands succeeding, your Spider and Flask system is now ready.
+
+----------------------------------------------
+
+## Running the Programs
+
+With the ethernet cable still connected, access the board through ssh:
+
+```
+ssh root@10.10.10.100
+``` 
+
+Once inside, run ```ls``` and verify that the two items you sent over are there. If they are, you can start up the socket by running:
+
+```
+.spider &
+cd FlaskFiles
+python3 main.py
+```
+
+Wait for the server to go up, and once it does, you can access the landing page shown earlier by opening a browser and navigating to ```localhost:80```. Test the connection by clicking on one of the buttons. If the spider responds, you've done it!
+
+## Automating on Boot
+
+As it stands, every time that you want to run the program, you need to ssh into the board and manually run both programs. There is an easier way to run them: by making them run as soon as the board boots up.
+
+We will be using the same script that was used to set up the static ip. As such, open up the script:
+
+```
+vi /etc/init.d/S60MAC.sh
+```
+
+And edit the script:
+
+```
+#!/bin/bash
+
+case "$1" in
+start)
+    printf "Setting ip: "
+    /sbin/ifconfig eth0 10.10.10.100 netmask 255.255.0.0 up
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+    ./root/spider &
+    python /root/FlaskFiles/main.py &
+    ;; 
+*)
+    exit 1
+    ;;
+esac
+```
+
+Make it executable with ```chmod +x S60MAC.sh``` and the programs will run every time it boots up.
+
+----------------------------------------------
+
+## Adding Wi-fi
+
+>>>>>>> c3961ca6c6aed38fa721d8e01a488dcf44754e1a
 However, this is hardly what was promised in the begining. In order to get a wireless experience, you will need to set up an ethernet forwarding bridge through a Raspberry Pi. This is because the linux kernel that is compatible with the spider program cannot support popular Wi-fi modules, so we need a way around this to make it wireless. You can either use an older Pi with a Wi-fi dongle or a new model with Wi-fi built-in. This tutorial will be using the Raspberry Pi 4 model B, which has the module built-in.
 
 ### First Steps
@@ -630,6 +716,7 @@ If you would like to learn more, RedHat has extensive documentation about [this]
 ----------------------------------------------
 
 ## Motivation
+<<<<<<< HEAD
 
 Our motivation to start this project was because when we saw that the Spider could only be controlled through a simple app on one phone through Bluetooth, we figured that making it controllable through Wi-fi and by any device on the network would be a simple and reasonable next step to improve upon the project. What started out as a simple project, "how to control a robotic spider through Flask" evolved several times to reach this final version because everytime we reached an objective, we would add a new goal to keep pushing and seeing how far we could go. We went through several attempts and several modules and methods until we landed on the process you just read through. Although not everything we tried out worked, we did learn a lot through trial and error and we hope that someone in the future can see what we've managed to achieve and improve upon it and make it go farther than we considered or even tried.
 
@@ -641,3 +728,7 @@ Our motivation to start this project was because when we saw that the Spider cou
  - [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/getting-started.html#installing-the-operating-system)
  - [Flask](https://flask.palletsprojects.com/en/2.2.x/)
  - [Red Hat Firewall](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/4/html/security_guide/ch-fw)
+=======
+
+Our motivation to start this project was because when we saw that the Spider could only be controlled through a simple app on one phone through Bluetooth, we figured that making it controllable through Wi-fi and by any device on the network would be a simple and reasonable next step to improve upon the project. What started out as a simple project, "how to control a robotic spider through Flask" evolved several times to reach this final version because everytime we reached an objective, we would add a new goal to keep pushing and seeing how far we could go. We went through several attempts and several modules and methods until we landed on the process you just read through. Although not everything we tried out worked, we did learn a lot through trial and error and we hope that someone in the future can see what we've managed to achieve and improve upon it and make it go farther than we considered or even tried.
+>>>>>>> c3961ca6c6aed38fa721d8e01a488dcf44754e1a
